@@ -16,6 +16,25 @@ Add one of the URLs above as a remote HTTP MCP server in your MCP client. Choose
 
 The URLs ending in `/mcp` are protocol endpoints. Visiting a hostname without `/mcp` opens the corresponding section of this README.
 
+### Select named tools in the repository source
+
+The repository adds a `tools` query filter for `/mcp`. **This feature has not been deployed to the hosted endpoints above.** Use a local server to try it; hosted examples apply after a later deployment.
+
+Provide actual MCP tool names as one comma-separated query value. For the combined server:
+
+| URL path | Exposed tools |
+| --- | --- |
+| `/mcp` | `current_time`, `sleep`, `random_numbers` |
+| `/mcp?tools=sleep,random_numbers` | `sleep`, `random_numbers` |
+| `/mcp?tools=current_time` | `current_time` |
+| `/mcp?tools=sleep` | `sleep` |
+
+Without `tools`, each deployment exposes its full configured inventory. A selection can only narrow that inventory: Sleep supports `current_time` and `sleep`; Random supports `random_numbers`; Tiny Tools supports all three. `current_time` and `sleep` can be selected independently. Only selected tools are registered for listing and calls.
+
+Duplicate names are removed, and tool lists use the stable order `current_time`, `sleep`, `random_numbers` regardless of input order. Unknown names, names unavailable in that deployment, an empty selection, empty comma-separated items, or repeated `tools` query parameters return HTTP 400 with an explanatory message. For example, `/mcp?tools=random_numbers` is invalid on the Sleep server, and `/mcp?tools=sleep&tools=current_time` is invalid on every server.
+
+The filter is a URL convenience, not an authentication or authorization boundary: anyone can connect without it to use the deployment's full inventory. Clients and proxies must preserve the query on MCP requests. Clients may cache tool inventories; reconnect or refresh the tool list after changing the URL. Query-filter compatibility verification is limited to this repository's SDK smoke client; third-party client behavior has not been verified.
+
 ## Sleep
 
 Call `current_time` with `{}` or `sleep` with `{"ms":2000}`. Responses contain UTC/epoch timestamps and measured elapsed time. Use these tools to ground time calculations, pace retries, or pause before checking an explicitly timed animation. Sleep is capped at one hour; client timeouts and disconnects can interrupt it.
@@ -48,7 +67,8 @@ src/
   clock.ts     # shared clock and abortable timer
   config.ts    # shared bounds and configuration
   index.ts     # shared HTTP MCP routing and validation
-  server.ts    # selects Sleep, Random, or both
+  server.ts    # registers the selected tools and instructions
+  tool-selection.ts # validates and normalizes deployment-bounded URL selections
 tests/         # clock, protocol, routing, Random, and combined-server checks
 scripts/       # clients and bounded smoke checks
 ```
@@ -65,6 +85,8 @@ npm run dev:tinytools
 ```
 
 Run `npm test`, `npm run typecheck`, and each dry build: `npm run build`, `npm run build:random`, `npm run build:tinytools`. Run bounded protocol smoke checks against a running server with `npm run smoke:endpoint -- http://127.0.0.1:8789/mcp tinytools --check-root` (substitute the endpoint and toolset). This exercises legacy and modern MCP clients, tool inventories, calls, timing, and seeded continuation.
+
+Check a filtered local connection with `npm run smoke:endpoint -- 'http://127.0.0.1:8789/mcp?tools=sleep,random_numbers' tinytools`. Quote query URLs in the shell. The smoke client preserves the query, verifies the selected inventory, and sends direct protocol calls to confirm excluded tools are rejected.
 
 To check a deployed server:
 

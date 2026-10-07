@@ -30,7 +30,7 @@ function result(data: Record<string, unknown>, isError = false) {
 }
 
 // Schemas can be shared, but the SDK factory creates a fresh server per HTTP request.
-export function registerSleepTools(server: McpServer, runtime: ClockRuntime, maxSleepMs: number) {
+export function registerCurrentTimeTool(server: McpServer, runtime: ClockRuntime, maxSleepMs: number) {
   server.registerTool("current_time", {
     description: "Return the server runtime's current UTC ISO timestamp and Unix epoch milliseconds/seconds. The observation uses Date.now at the last runtime I/O event; accuracy and network latency are not guaranteed. Also reports the configured sleep cap.",
     inputSchema: z.object({}).strict(),
@@ -38,6 +38,9 @@ export function registerSleepTools(server: McpServer, runtime: ClockRuntime, max
     annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: false, openWorldHint: false },
   }, async () => result(currentTime(runtime, maxSleepMs)));
 
+}
+
+export function registerSleepTool(server: McpServer, runtime: ClockRuntime, maxSleepMs: number) {
   server.registerTool("sleep", {
     description: `Wait asynchronously for an integer duration in milliseconds from 0 through ${maxSleepMs}. Return server UTC/epoch start/end observations, requested duration, measured elapsed wall time, and difference. Scheduling may overshoot or return early; inspect status. Set your client timeout above this delay. Cancellation/disconnect may prevent a response.`,
     inputSchema: z.object({ ms: z.number().int().min(0).max(maxSleepMs).describe("Requested wait in whole milliseconds") }).strict(),
@@ -47,4 +50,9 @@ export function registerSleepTools(server: McpServer, runtime: ClockRuntime, max
     const data = await sleep(ms, runtime, context.mcpReq.signal);
     return result(data, data.status !== "completed");
   });
+}
+
+export function registerSleepTools(server: McpServer, runtime: ClockRuntime, maxSleepMs: number) {
+  registerCurrentTimeTool(server, runtime, maxSleepMs);
+  registerSleepTool(server, runtime, maxSleepMs);
 }

@@ -12,6 +12,14 @@ Release version: the shared [Tiny Tools CalVer](../../README.md#versioning).
 
 Add the MCP URL as a remote HTTP server in your MCP client. No account or token is required; choose no authentication if asked. The server uses Streamable HTTP and supports legacy and modern MCP clients.
 
+### Select one tool in the repository source
+
+The repository's `tools` query filter has **not been deployed to the hosted endpoints**. On a local Sleep server, use `http://127.0.0.1:8787/mcp?tools=current_time` for the clock alone or `http://127.0.0.1:8787/mcp?tools=sleep` for the timer alone. Omitting `tools` exposes both. Selecting `sleep` does not implicitly add `current_time`.
+
+Only the exact MCP names `current_time` and `sleep` are available on this deployment. `random_numbers` is available on the combined server, where `/mcp?tools=sleep,random_numbers` selects just those two tools. Duplicate names are removed and the stable order is `current_time`, `sleep`, `random_numbers`. Unknown or unavailable names, empty selections or items, and repeated `tools` parameters return HTTP 400 with an explanatory message.
+
+This convenience filter is not an authentication boundary. Preserve the URL query through the client and any proxy, and reconnect or refresh a cached tool list after changing the selection. Verification is limited to the repository's SDK smoke client; third-party client behavior is unverified. See the [full filter rules](../../README.md#select-named-tools-in-the-repository-source).
+
 ## Tools and usage
 
 ### `current_time`

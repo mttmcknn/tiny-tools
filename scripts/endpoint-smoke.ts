@@ -6,17 +6,29 @@ import { Client, StreamableHTTPClientTransport, type CallToolResult } from "@mod
 const [supplied, toolset, rootFlag] = process.argv.slice(2);
 if (!supplied || !["sleep", "random", "tinytools"].includes(toolset ?? "") ||
     (rootFlag !== undefined && rootFlag !== "--check-root") || process.argv.length > 5) {
-  throw new Error("Usage: node scripts/endpoint-smoke.ts URL/mcp sleep|random|tinytools [--check-root]");
+  throw new Error("Usage: node scripts/endpoint-smoke.ts URL/mcp[?tools=current_time,sleep,random_numbers] sleep|random|tinytools [--check-root]");
 }
 const endpoint = new URL(supplied);
 const local = endpoint.protocol === "http:" && ["localhost", "127.0.0.1", "[::1]"].includes(endpoint.hostname);
 if ((!local && endpoint.protocol !== "https:") || endpoint.pathname !== "/mcp" ||
-    endpoint.username || endpoint.password || endpoint.search || endpoint.hash) {
-  throw new Error("Supply a local HTTP or HTTPS /mcp URL without credentials, query, or fragment");
+    endpoint.username || endpoint.password || endpoint.hash) {
+  throw new Error("Supply a local HTTP or HTTPS /mcp URL without credentials or fragment");
 }
-const hasSleep = toolset !== "random";
-const hasRandom = toolset !== "sleep";
-const expectedTools = [hasSleep && "current_time", hasSleep && "sleep", hasRandom && "random_numbers"].filter(Boolean).sort();
+// Derive the expected inventory independently of the server's selection resolver.
+// Keep the full endpoint URL (including its query) for every SDK exchange.
+const availableTools = toolset === "random" ? ["random_numbers"] : toolset === "sleep"
+  ? ["current_time", "sleep"] : ["current_time", "sleep", "random_numbers"];
+const filters = endpoint.searchParams.getAll("tools");
+if (filters.length > 1) throw new Error("Supply at most one tools query parameter");
+const requestedTools = filters.length === 0 ? availableTools : filters[0]!.split(",").map(name => name.trim());
+if (requestedTools.some(name => !name || !availableTools.includes(name))) {
+  throw new Error(`tools must select names available on ${toolset}: ${availableTools.join(",")}`);
+}
+const expectedTools = availableTools.filter(name => requestedTools.includes(name));
+const excludedTools = availableTools.filter(name => !expectedTools.includes(name));
+const hasCurrentTime = expectedTools.includes("current_time");
+const hasSleep = expectedTools.includes("sleep");
+const hasRandom = expectedTools.includes("random_numbers");
 const identity = toolset === "tinytools" ? "tiny-tools-mcp" : `${toolset}-mcp`;
 const observations: unknown[] = [];
 const traces: { rpc?: string; method: string; status: number }[] = [];
@@ -56,21 +68,23 @@ try {
       assert.equal(client.getProtocolEra(), modern ? "modern" : "legacy");
       assert.equal(client.getServerVersion()?.name, identity);
       const listed = await client.listTools({}, { timeout: 10_000, signal: suiteAbort.signal });
-      assert.deepEqual(listed.tools.map(tool => tool.name).sort(), expectedTools);
+      assert.deepEqual(listed.tools.map(tool => tool.name), expectedTools);
       assert.ok(listed.tools.every(tool => tool.outputSchema));
       const observation: Record<string, unknown> = { protocol: client.getProtocolEra(), identity, server_version: client.getServerVersion()?.version, tools: expectedTools };
       const call = (name: string, args: Record<string, unknown>) => client.callTool({ name, arguments: args }, {
         timeout: 10_000, maxTotalTimeout: 10_000, signal: suiteAbort.signal,
       });
-      if (hasSleep) {
+      if (hasCurrentTime) {
         const clock = structured(await call("current_time", {}));
         assert.equal(Date.parse(String(clock.utc)), clock.epoch_ms);
+        observation.clock = clock;
+      }
+      if (hasSleep) {
         const started = performance.now();
         const slept = structured(await call("sleep", { ms: 100 }));
         assert.equal(slept.status, "completed");
         assert.equal(slept.requested_duration_ms, 100);
         assert.ok(Number(slept.actual_elapsed_ms) >= 100);
-        observation.clock = clock;
         observation.sleep = slept;
         observation.client_elapsed_ms = Math.round(performance.now() - started);
       }
@@ -81,6 +95,26 @@ try {
         const whole = structured(await call("random_numbers", { seed: 42, count: 5 }));
         assert.deepEqual([...(random.values as number[]), ...(next.values as number[])], whole.values);
         observation.random = random;
+      }
+      if (excludedTools.length > 0) {
+        const rejected: { name: string; response: string; code?: number }[] = [];
+        for (const name of excludedTools) {
+          const args = name === "sleep" ? { ms: 0 } : name === "random_numbers" ? { seed: 42, count: 1 } : {};
+          try {
+            // Bypass the client's tool inventory/schema cache so the rejection
+            // proves that this protocol request reached the filtered server.
+            const result = await client.request({ method: "tools/call", params: { name, arguments: args } }, {
+              timeout: 10_000, maxTotalTimeout: 10_000, signal: suiteAbort.signal,
+            }) as CallToolResult;
+            assert.equal(result.isError, true, `Unselected tool ${name} remained callable`);
+            rejected.push({ name, response: "tool_error" });
+          } catch (error) {
+            assert.ok(error && typeof error === "object" && "code" in error, `Expected an MCP rejection for ${name}`);
+            assert.ok(error.code === -32601 || error.code === -32602, `Unexpected rejection code for ${name}: ${String(error.code)}`);
+            rejected.push({ name, response: "rpc_error", code: error.code });
+          }
+        }
+        observation.rejected_tools = rejected;
       }
       observations.push(observation);
     } finally { await client.close(); }

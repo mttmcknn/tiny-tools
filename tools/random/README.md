@@ -12,6 +12,14 @@ Release version: the shared [Tiny Tools CalVer](../../README.md#versioning).
 
 Add the MCP URL as a remote HTTP server in your MCP client. No account or token is required; choose no authentication if asked. The server uses Streamable HTTP and supports legacy and modern MCP clients.
 
+### Select named tools in the repository source
+
+The repository's `tools` query filter has **not been deployed to the hosted endpoints**. A local Random URL can be `http://127.0.0.1:8788/mcp?tools=random_numbers`; omitting `tools` exposes the same single tool. The combined server can select just Random with `/mcp?tools=random_numbers`, or Random plus the timer with `/mcp?tools=sleep,random_numbers`.
+
+The Random deployment accepts only `random_numbers`; selecting `current_time` or `sleep` cannot expand its inventory. Duplicate names are removed and the stable order is `current_time`, `sleep`, `random_numbers`. Unknown or unavailable names, empty selections or items, and repeated `tools` parameters return HTTP 400 with an explanatory message.
+
+This convenience filter is not an authentication boundary. Preserve the URL query through the client and any proxy, and reconnect or refresh a cached tool list after changing the selection. Verification is limited to the repository's SDK smoke client; third-party client behavior is unverified. See the [full filter rules](../../README.md#select-named-tools-in-the-repository-source).
+
 ## `random_numbers` usage
 
 ```json
