@@ -1,3 +1,4 @@
+import { VERSION } from "../src/version.ts";
 import assert from "node:assert/strict";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 
@@ -8,7 +9,7 @@ if (endpoint.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includ
 const ms = 90_000;
 const timeout = 120_000;
 let requests = 0;
-const client = new Client({ name: "sleep-mcp-long-smoke", version: "1.0.0" }, {
+const client = new Client({ name: "sleep-mcp-long-smoke", version: VERSION }, {
   versionNegotiation: { mode: { pin: "2026-07-28" } },
 });
 const tracedFetch: typeof fetch = (input, init) => { requests++; return fetch(input, init); };

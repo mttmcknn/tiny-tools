@@ -1,3 +1,4 @@
+import { VERSION } from "../src/version.ts";
 import assert from "node:assert/strict";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 
@@ -12,7 +13,7 @@ const tracedFetch: typeof fetch = async (input, init) => {
 };
 const observations: unknown[] = [];
 for (const modern of [false, true]) {
-  const client = new Client({ name: "random-mcp-smoke", version: "1.0.0" }, {
+  const client = new Client({ name: "random-mcp-smoke", version: VERSION }, {
     versionNegotiation: { mode: modern ? { pin: "2026-07-28" } : "legacy" },
   });
   try {

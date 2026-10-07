@@ -1,3 +1,4 @@
+import { VERSION } from "../src/version.ts";
 import assert from "node:assert/strict";
 import { Client, StreamableHTTPClientTransport, type CallToolResult } from "@modelcontextprotocol/client";
 
@@ -43,7 +44,7 @@ function structured(result: CallToolResult) {
 }
 try {
   for (const modern of [false, true]) {
-    const client = new Client({ name: "tiny-tools-endpoint-smoke", version: "1.0.0" }, {
+    const client = new Client({ name: "tiny-tools-endpoint-smoke", version: VERSION }, {
       versionNegotiation: { mode: modern ? { pin: "2026-07-28" } : "legacy", probe: { maxRetries: 0 } },
     });
     try {
@@ -57,7 +58,7 @@ try {
       const listed = await client.listTools({}, { timeout: 10_000, signal: suiteAbort.signal });
       assert.deepEqual(listed.tools.map(tool => tool.name).sort(), expectedTools);
       assert.ok(listed.tools.every(tool => tool.outputSchema));
-      const observation: Record<string, unknown> = { protocol: client.getProtocolEra(), identity, tools: expectedTools };
+      const observation: Record<string, unknown> = { protocol: client.getProtocolEra(), identity, server_version: client.getServerVersion()?.version, tools: expectedTools };
       const call = (name: string, args: Record<string, unknown>) => client.callTool({ name, arguments: args }, {
         timeout: 10_000, maxTotalTimeout: 10_000, signal: suiteAbort.signal,
       });

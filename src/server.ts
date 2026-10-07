@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import type { ClockRuntime } from "./clock.ts";
 import type { Toolset } from "./config.ts";
+import { VERSION } from "./version.ts";
 import { registerSleepTools } from "../tools/sleep/index.ts";
 import { registerRandomTools } from "../tools/random/index.ts";
 
@@ -15,7 +16,7 @@ const INSTRUCTIONS: Record<Toolset, string> = {
 // Each deployment selects its tool inventory while sharing protocol plumbing.
 export function createServer(runtime: ClockRuntime, maxSleepMs: number, toolset: Toolset = "sleep") {
   const name = toolset === "tinytools" ? "tiny-tools-mcp" : `${toolset}-mcp`;
-  const server = new McpServer({ name, version: "1.0.0" }, {
+  const server = new McpServer({ name, version: VERSION }, {
     capabilities: { tools: { listChanged: false } },
     instructions: INSTRUCTIONS[toolset],
   });

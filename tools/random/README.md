@@ -6,6 +6,8 @@ MCP URL: [https://random.mttmcknn.dev/mcp](https://random.mttmcknn.dev/mcp)
 
 The same tool is also available through the [combined Tiny Tools endpoint](https://tools.mttmcknn.dev/mcp).
 
+Release version: the shared [Tiny Tools CalVer](../../README.md#versioning).
+
 ## Connect
 
 Add the MCP URL as a remote HTTP server in your MCP client. No account or token is required; choose no authentication if asked. The server uses Streamable HTTP and supports legacy and modern MCP clients.

@@ -1,3 +1,4 @@
+import { VERSION } from "../src/version.ts";
 import assert from "node:assert/strict";
 import {
   Client, SdkError, SdkErrorCode, StreamableHTTPClientTransport,
@@ -72,7 +73,7 @@ const boundedFetch: FetchLike = async (input, init) => {
 };
 
 function makeClient(name: string, modern = false) {
-  const client = new Client({ name, version: "1.0.0" }, {
+  const client = new Client({ name, version: VERSION }, {
     versionNegotiation: { mode: modern ? { pin: "2026-07-28" } : "legacy", probe: { maxRetries: 0 } },
   });
   const transport = new StreamableHTTPClientTransport(endpoint, {

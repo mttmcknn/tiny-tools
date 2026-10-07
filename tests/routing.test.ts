@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { VERSION } from "../src/version.ts";
 import test from "node:test";
 import { Client, StreamableHTTPClientTransport, type ClientOptions, type FetchLike } from "@modelcontextprotocol/client";
 import { createWorker } from "../src/index.ts";
@@ -155,7 +156,10 @@ test(`${era} clients observe toolset and sleep bound switches without stale cach
     try {
       await client.connect(new StreamableHTTPClientTransport(new URL("http://localhost/mcp"), { fetch }), { timeout: 1_000 });
       assert.equal(client.getProtocolEra(), era);
-      assert.equal(client.getServerVersion()?.name, toolset === "tinytools" ? "tiny-tools-mcp" : `${toolset}-mcp`);
+      assert.deepEqual(client.getServerVersion(), {
+        name: toolset === "tinytools" ? "tiny-tools-mcp" : `${toolset}-mcp`,
+        version: VERSION,
+      });
       const listed = await client.listTools();
       const expectedTools = toolset === "sleep" ? ["current_time", "sleep"]
         : toolset === "random" ? ["random_numbers"] : ["current_time", "random_numbers", "sleep"];

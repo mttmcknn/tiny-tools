@@ -1,6 +1,6 @@
 {
   "name": "tiny-tools-mcp",
-  "version": "1.0.0",
+  "version": "2026.10.7",
   "private": true,
   "type": "module",
   "description": "Small independently deployable Cloudflare Workers MCP tools",

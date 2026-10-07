@@ -1,3 +1,4 @@
+import { VERSION } from "../src/version.ts";
 import assert from "node:assert/strict";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 
@@ -26,7 +27,7 @@ const elapsed: number[] = [];
 const clientWall: number[] = [];
 const started = performance.now();
 await Promise.all(Array.from({ length: clients }, async (_, index) => {
-  const client = new Client({ name: `local-load-${index}`, version: "1.0.0" });
+  const client = new Client({ name: `local-load-${index}`, version: VERSION });
   try {
     await client.connect(new StreamableHTTPClientTransport(endpoint, { fetch: tracedFetch }), { timeout: 5_000 });
     await client.listTools({}, { timeout: 5_000 });

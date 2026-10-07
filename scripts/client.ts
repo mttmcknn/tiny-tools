@@ -1,7 +1,8 @@
+import { VERSION } from "../src/version.ts";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 
 export async function connectClock(endpoint: string, modern = false) {
-  const client = new Client({ name: "sleep-mcp-headless-example", version: "1.0.0" }, {
+  const client = new Client({ name: "sleep-mcp-headless-example", version: VERSION }, {
     versionNegotiation: { mode: modern ? { pin: "2026-07-28" } : "legacy" },
   });
   await client.connect(new StreamableHTTPClientTransport(new URL(endpoint)), { timeout: 10_000 });

@@ -72,6 +72,20 @@ To check a deployed server:
 npm run smoke:endpoint -- https://tools.mttmcknn.dev/mcp tinytools --check-root
 ```
 
+## Design goals
+
+Tiny Tools is free to use and aims to keep new tools affordable within Cloudflare's free tier at reasonable usage. Prefer stateless operations, bounded inputs and outputs, small payloads, and asynchronous waits with little CPU work. Keep shared protocol code lightweight.
+
+Assess Cloudflare's [current request and CPU limits](https://developers.cloudflare.com/workers/platform/limits/) and [pricing](https://developers.cloudflare.com/workers/platform/pricing/), and measure a tool's resource use before making scale claims. Discuss paid APIs, storage, or other paid resources before adding them. The current tools use no persistent storage or paid external APIs.
+
+## Versioning
+
+Tiny Tools uses one shared CalVer release version in `YYYY.M.D` format. The current repository release is **2026.10.7**. Month and day are unpadded integers so the version remains compatible with package version syntax.
+
+Use the UTC date when preparing a release and update `package.json` plus the two root version fields in `package-lock.json` together. `package.json` is the source of truth: the shared version module reads it for all three MCP servers and the shipped clients. Builds keep that fixed release version rather than deriving a new one from the clock.
+
+The MCP server identity advertises this value as `serverInfo.version`. Updating the live value requires deploying the corresponding Worker bundles; the endpoint URLs stay the same. MCP protocol versions and dependency versions are independent of the release version.
+
 ## Deployment
 
 The three configs deploy the `sleep-mcp`, `random-mcp`, and `tiny-tools-mcp` Workers and attach their respective Cloudflare Worker Custom Domains. Cloudflare manages DNS and TLS. `workers_dev` stays enabled, including for the original Sleep endpoint.

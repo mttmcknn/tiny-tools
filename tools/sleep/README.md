@@ -6,6 +6,8 @@ MCP URL: [https://sleep.mttmcknn.dev/mcp](https://sleep.mttmcknn.dev/mcp)
 
 The original [https://sleep-mcp.mmckenna.workers.dev/mcp](https://sleep-mcp.mmckenna.workers.dev/mcp) remains supported. Both tools are also available through the [combined Tiny Tools endpoint](https://tools.mttmcknn.dev/mcp).
 
+Release version: the shared [Tiny Tools CalVer](../../README.md#versioning).
+
 ## Connect
 
 Add the MCP URL as a remote HTTP server in your MCP client. No account or token is required; choose no authentication if asked. The server uses Streamable HTTP and supports legacy and modern MCP clients.

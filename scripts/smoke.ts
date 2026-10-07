@@ -1,3 +1,4 @@
+import { VERSION } from "../src/version.ts";
 import assert from "node:assert/strict";
 import { Client, StreamableHTTPClientTransport, type CallToolResult } from "@modelcontextprotocol/client";
 
@@ -26,7 +27,7 @@ function structured(result: CallToolResult) {
   return result.structuredContent as Record<string, unknown>;
 }
 function makeClient(modern = false) {
-  return new Client({ name: "sleep-mcp-smoke", version: "1.0.0" }, {
+  return new Client({ name: "sleep-mcp-smoke", version: VERSION }, {
     versionNegotiation: { mode: modern ? { pin: "2026-07-28" } : "legacy" },
   });
 }
