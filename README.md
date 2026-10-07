@@ -16,9 +16,9 @@ Add one of the URLs above as a remote HTTP MCP server in your MCP client. Choose
 
 The URLs ending in `/mcp` are protocol endpoints. Visiting a hostname without `/mcp` opens the corresponding section of this README.
 
-### Select named tools in the repository source
+### Select named tools
 
-The repository adds a `tools` query filter for `/mcp`. **This feature has not been deployed to the hosted endpoints above.** Use a local server to try it; hosted examples apply after a later deployment.
+The hosted endpoints support a `tools` query filter on `/mcp`. For example, [this combined connection](https://tools.mttmcknn.dev/mcp?tools=sleep,random_numbers) exposes only `sleep` and `random_numbers`. The same filter works on local servers.
 
 Provide actual MCP tool names as one comma-separated query value. For the combined server:
 
