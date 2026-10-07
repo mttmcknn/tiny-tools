@@ -1,0 +1,41 @@
+{
+  "name": "tiny-tools-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Small independently deployable Cloudflare Workers MCP tools",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "XDG_CONFIG_HOME=.wrangler-home WRANGLER_LOG_PATH=.wrangler/logs WRANGLER_SEND_METRICS=false wrangler dev --local --ip 127.0.0.1 --port 8787 --persist-to .wrangler/state/sleep",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.ts",
+    "build": "XDG_CONFIG_HOME=.wrangler-home WRANGLER_LOG_PATH=.wrangler/logs WRANGLER_SEND_METRICS=false wrangler deploy --dry-run --outdir dist",
+    "smoke": "node scripts/smoke.ts",
+    "long-smoke": "node scripts/long-smoke.ts",
+    "client": "node scripts/client.ts",
+    "load": "node scripts/load.ts",
+    "remote-smoke": "node scripts/remote-smoke.ts",
+    "deploy": "XDG_CONFIG_HOME=.wrangler-home WRANGLER_LOG_PATH=.wrangler/logs WRANGLER_SEND_METRICS=false wrangler deploy",
+    "dev:random": "XDG_CONFIG_HOME=.wrangler-home WRANGLER_LOG_PATH=.wrangler/logs WRANGLER_SEND_METRICS=false wrangler dev --local --config wrangler.random.jsonc --ip 127.0.0.1 --port 8788 --inspector-port 9230 --persist-to .wrangler/state/random",
+    "build:random": "XDG_CONFIG_HOME=.wrangler-home WRANGLER_LOG_PATH=.wrangler/logs WRANGLER_SEND_METRICS=false wrangler deploy --dry-run --config wrangler.random.jsonc --outdir dist/random",
+    "deploy:random": "XDG_CONFIG_HOME=.wrangler-home WRANGLER_LOG_PATH=.wrangler/logs WRANGLER_SEND_METRICS=false wrangler deploy --config wrangler.random.jsonc",
+    "smoke:random": "node scripts/random-smoke.ts",
+    "dev:tinytools": "XDG_CONFIG_HOME=.wrangler-home WRANGLER_LOG_PATH=.wrangler/logs WRANGLER_SEND_METRICS=false wrangler dev --local --config wrangler.tinytools.jsonc --ip 127.0.0.1 --port 8789 --inspector-port 9231 --persist-to .wrangler/state/tinytools",
+    "build:tinytools": "XDG_CONFIG_HOME=.wrangler-home WRANGLER_LOG_PATH=.wrangler/logs WRANGLER_SEND_METRICS=false wrangler deploy --dry-run --config wrangler.tinytools.jsonc --outdir dist/tinytools",
+    "deploy:tinytools": "XDG_CONFIG_HOME=.wrangler-home WRANGLER_LOG_PATH=.wrangler/logs WRANGLER_SEND_METRICS=false wrangler deploy --config wrangler.tinytools.jsonc",
+    "smoke:endpoint": "node scripts/endpoint-smoke.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.2.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.2.0",
+    "@cloudflare/workers-types": "5.20261001.1",
+    "@types/node": "26.6.3",
+    "typescript": "7.0.2",
+    "wrangler": "4.146.0"
+  }
+}

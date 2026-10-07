@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.wrangler/
+.wrangler-home/
+.dev.vars*
+.env*
+*.log
+evidence/

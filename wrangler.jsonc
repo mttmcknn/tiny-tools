@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sleep-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": [
+    "enable_request_signal"
+  ],
+  "workers_dev": true,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "vars": {
+    "TOOLSET": "sleep",
+    "REPOSITORY_URL": "https://github.com/mttmcknn/tiny-tools",
+    "MAX_SLEEP_MS": "3600000",
+    "ALLOWED_HOSTNAMES": "localhost,127.0.0.1,[::1],sleep-mcp.mmckenna.workers.dev,sleep.mttmcknn.dev"
+  },
+  "account_id": "21406abb624cb5070def7b0259c29503",
+  "routes": [
+    {
+      "pattern": "sleep.mttmcknn.dev",
+      "custom_domain": true
+    }
+  ]
+}
