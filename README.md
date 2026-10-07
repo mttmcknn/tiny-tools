@@ -2,7 +2,7 @@
 
 Small public MCP tools hosted on Cloudflare Workers. This repository contains the shared source, tests, and deployment configurations for Sleep, Random, and the combined Tiny Tools server. No client account or token is needed.
 
-Deployment and custom-domain verification are in progress. The existing public Sleep endpoint remains [sleep-mcp.mmckenna.workers.dev/mcp](https://sleep-mcp.mmckenna.workers.dev/mcp).
+The endpoints below are live. The existing public Sleep endpoint remains [sleep-mcp.mmckenna.workers.dev/mcp](https://sleep-mcp.mmckenna.workers.dev/mcp).
 
 | Tool | Description | MCP URL |
 | --- | --- | --- |
